@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Blocked Sites</title>
+        <style>
+            body {
+                width: 300px;
+                padding: 10px;
+            }
+            #siteList {
+                list-style-type: none;
+                padding: 0;
+            }
+            #siteList li {
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            #siteList li button {
+                margin-left: 10px;
+            }
+            input[type="text"] {
+                width: calc(100% - 85px);
+            }
+            button#addSite {
+                width: 75px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Blocked Sites</h1>
+        <input
+            type="text"
+            id="newSite"
+            placeholder="Add new site..."
+            aria-label="New site URL"
+        />
+        <button id="addSite">Add</button>
+        <ul id="siteList"></ul>
+        <script src="popup.js"></script>
+    </body>
+</html>

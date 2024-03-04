@@ -41,6 +41,7 @@ function removeSite(site, sendResponse) {
     const index = sites.indexOf(site);
     if (index > -1) {
       sites.splice(index, 1);
+      console.log(sites);
       chrome.storage.sync.set({ blockedSites: sites }, () => {
         updateRules();
         sendResponse({ success: true });
@@ -54,12 +55,13 @@ function removeSite(site, sendResponse) {
 function updateRules() {
   chrome.storage.sync.get(["blockedSites"], function (result) {
     const sites = result.blockedSites || [];
+    console.log(sites);
     const rules = sites.map((site, index) => ({
       id: index + 1,
       priority: 1,
       action: { type: "block" },
       condition: {
-        urlFilter: `https://${site}*`,
+        urlFilter: `https://*.${site}*`,
         resourceTypes: ["main_frame"],
       },
     }));

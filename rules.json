@@ -4,7 +4,7 @@
     "priority": 1,
     "action": { "type": "block" },
     "condition": {
-      "urlFilter": "|https://*.espn.com*",
+      "urlFilter": "|https://*.someothersite.com*",
       "resourceTypes": ["main_frame"]
     }
   },

@@ -1,3 +1,4 @@
+// These sites are blocked upon initialization
 const SITES_TO_BLOCK = ["espn.com", "cnn.com"];
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -25,7 +26,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 function addSite(site, sendResponse) {
   chrome.storage.sync.get(["blockedSites"], function (result) {
-    const sites = result.blockedSites || SITES_TO_BLOCK;
+    const sites = result.blockedSites || [];
     if (!sites.includes(site)) {
       sites.push(site);
       chrome.storage.sync.set({ blockedSites: sites }, () => {
@@ -34,6 +35,7 @@ function addSite(site, sendResponse) {
       });
     } else {
       sendResponse({ success: false, error: "Site already blocked" });
+      console.log("Site already blocked: " + site);
     }
   });
 }
@@ -51,23 +53,28 @@ function removeSite(site, sendResponse) {
       });
     } else {
       sendResponse({ success: false, error: "Site not found" });
+      console.log("Site not found: " + site);
     }
   });
 }
 
 function updateRules() {
   chrome.storage.sync.get(["blockedSites"], function (result) {
-    const sites = result.blockedSites || SITES_TO_BLOCK;
+    const sites = result.blockedSites || [];
+    console.log("Updating rules...");
     console.log(sites);
     const rules = sites.map((site, index) => ({
       id: index + 1,
       priority: 1,
       action: { type: "block" },
       condition: {
+        // urlFilter: site,
         urlFilter: `|https://*.${site}*`,
         resourceTypes: ["main_frame"],
       },
     }));
+
+    console.log(rules);
 
     chrome.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: rules.map((rule) => rule.id),

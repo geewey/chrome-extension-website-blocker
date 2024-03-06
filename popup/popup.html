@@ -4,40 +4,45 @@
         <title>Blocked Sites</title>
         <style>
             body {
-                width: 300px;
-                padding: 10px;
+                width: 18rem;
+                padding: 0.5rem;
+            }
+            #inputDiv {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
             }
             #siteList {
-                list-style-type: none;
                 padding: 0;
             }
             #siteList li {
-                margin-bottom: 10px;
+                margin-bottom: 0.5rem;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
             }
             #siteList li button {
-                margin-left: 10px;
+                margin-left: 0.5rem;
             }
             input[type="text"] {
-                width: calc(100% - 85px);
+                width: calc(100% - 5rem);
             }
             button#addSite {
-                margin-top: 0.5rem;
-                width: 75px;
+                width: 4rem;
             }
         </style>
     </head>
     <body>
         <h1>Blocked Sites</h1>
-        <input
-            type="text"
-            id="newSite"
-            placeholder="Add new site..."
-            aria-label="New site URL"
-        />
-        <button id="addSite">Add</button>
+        <div id="inputDiv">
+            <input
+                type="text"
+                id="newSite"
+                placeholder="Add new site (ex: espn.com)..."
+                aria-label="Add new site"
+            />
+            <button id="addSite">Add</button>
+        </div>
         <ul id="siteList"></ul>
         <script src="popup.js"></script>
     </body>

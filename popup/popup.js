@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   loadBlockedSites();
 
   document.getElementById("addSite").addEventListener("click", function () {
-    const site = document.getElementById("newSite").value.trim();
+    const site = document.getElementById("newSite").value.trim().toLowerCase(); // casing
     if (site) {
       addBlockRule(site);
     }

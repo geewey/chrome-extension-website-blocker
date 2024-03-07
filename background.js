@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     removeSite(request.site, sendResponse);
   } else if (request.action === "getSites") {
     chrome.storage.sync.get(["blockedSites"], function (result) {
-      sendResponse({ sites: result.blockedSites || SITES_TO_BLOCK });
+      sendResponse({ sites: result.blockedSites || [] });
     });
   }
   return true; // Indicate that we will answer asynchronously
@@ -51,15 +51,24 @@ function removeSite(site, sendResponse) {
         updateRules();
         sendResponse({ success: true });
       });
+
+      // todo: adding multiple sites is breaking
     } else {
       sendResponse({ success: false, error: "Site not found" });
       console.log("Site not found: " + site);
     }
   });
+
+  // log changes after
+  chrome.storage.sync.get(["blockedSites"], function (result) {
+    const newSites = result.blockedSites || [];
+    console.log("new sites... after removal");
+    console.log(newSites);
+  });
 }
 
 function updateRules() {
-  chrome.storage.sync.get(["blockedSites"], function (result) {
+  chrome.storage.sync.get(["blockedSites"], async function (result) {
     const sites = result.blockedSites || [];
     console.log("Updating rules...");
     console.log(sites);
@@ -68,17 +77,35 @@ function updateRules() {
       priority: 1,
       action: { type: "block" },
       condition: {
-        // urlFilter: site,
-        urlFilter: `|https://*.${site}*`,
+        urlFilter: site,
+        // urlFilter: `|https://*.${site}*`,
         resourceTypes: ["main_frame"],
       },
     }));
 
+    // const newSites = sites.filter(())
+
     console.log(rules);
 
-    chrome.declarativeNetRequest.updateDynamicRules({
+    await chrome.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: rules.map((rule) => rule.id),
       addRules: rules,
     });
+
+    await chrome.storage.sync.set({ blockedSites: SITES_TO_BLOCK });
+
+    // todo: implement getDynamicRules() and updateDynamicRules()
+
+    // // Get arrays containing new and old rules
+    // const newRules = await getNewRules();
+    // const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
+    // const oldRuleIds = oldRules.map(rule => rule.id);
+
+    // // Use the arrays to update the dynamic rules
+    // await chrome.declarativeNetRequest.updateDynamicRules({
+    //   removeRuleIds: oldRuleIds,
+    //   addRules: newRules
+    // });
+    console.log();
   });
 }

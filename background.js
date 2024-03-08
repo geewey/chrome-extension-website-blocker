@@ -62,17 +62,23 @@ function removeSite(site, sendResponse) {
   // log changes after
   chrome.storage.sync.get(["blockedSites"], function (result) {
     const newSites = result.blockedSites || [];
-    console.log("new sites... after removal");
+    console.log("New sites... after removal");
     console.log(newSites);
   });
 }
 
 function updateRules() {
   chrome.storage.sync.get(["blockedSites"], async function (result) {
+    // First, get all all existing rules
+    const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
+    const oldRuleIds = oldRules.map((rule) => rule.id);
+
+    // Then, prepare the new rules based on the updated list of blocked sites
     const sites = result.blockedSites || [];
     console.log("Updating rules...");
-    console.log(sites);
-    const rules = sites.map((site, index) => ({
+    console.log("Current sites:", sites);
+
+    const newRules = sites.map((site, index) => ({
       id: index + 1,
       priority: 1,
       action: { type: "block" },
@@ -83,29 +89,12 @@ function updateRules() {
       },
     }));
 
-    // const newSites = sites.filter(())
+    console.log("New rules:", newRules);
 
-    console.log(rules);
-
+    // Finally, update the dynamic rules with the new set
     await chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: rules.map((rule) => rule.id),
-      addRules: rules,
+      removeRuleIds: oldRuleIds,
+      addRules: newRules,
     });
-
-    await chrome.storage.sync.set({ blockedSites: SITES_TO_BLOCK });
-
-    // todo: implement getDynamicRules() and updateDynamicRules()
-
-    // // Get arrays containing new and old rules
-    // const newRules = await getNewRules();
-    // const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
-    // const oldRuleIds = oldRules.map(rule => rule.id);
-
-    // // Use the arrays to update the dynamic rules
-    // await chrome.declarativeNetRequest.updateDynamicRules({
-    //   removeRuleIds: oldRuleIds,
-    //   addRules: newRules
-    // });
-    console.log();
   });
 }

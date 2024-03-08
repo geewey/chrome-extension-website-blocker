@@ -3,8 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
   loadBlockedSites();
 
   document.getElementById("addSite").addEventListener("click", function () {
-    const site = document.getElementById("newSite").value.trim().toLowerCase(); // casing
+    const site = document.getElementById("newSite").value.trim().toLowerCase(); // Enforce casing
     if (site) {
+      console.log(site);
       addBlockRule(site);
     }
   });
@@ -26,10 +27,11 @@ function addBlockRule(site) {
     function (response) {
       if (response.success) {
         addSiteToList(site);
-        document.getElementById("newSite").value = ""; // Clear input field
       } else {
         // Handle error (optional)
+        alert("Site already blocked: " + site);
       }
+      document.getElementById("newSite").value = ""; // Clear input field
     },
   );
 }
@@ -42,6 +44,7 @@ function removeBlockRule(site) {
         loadBlockedSites(); // Refresh the list
       } else {
         // Handle error (optional)
+        alert("Error occurred while removing site: " + site);
       }
     },
   );
@@ -54,6 +57,7 @@ function addSiteToList(site) {
 
   const removeButton = document.createElement("button");
   removeButton.textContent = "Remove";
+  removeButton.classList.add("removeSpecificSite");
   removeButton.addEventListener("click", function () {
     removeBlockRule(site);
   });

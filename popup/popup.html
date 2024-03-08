@@ -27,8 +27,26 @@
             input[type="text"] {
                 width: calc(100% - 5rem);
             }
+            button {
+                transition-duration: 0.4s;
+                cursor: pointer;
+                border-radius: 1px;
+                background-color: white;
+            }
             button#addSite {
                 width: 4rem;
+                border: 1px solid #008cba;
+            }
+            button#addSite:hover {
+                background-color: #008cba;
+                color: white;
+            }
+            .removeSpecificSite {
+                border: 1px solid #f44336;
+            }
+            .removeSpecificSite:hover {
+                background-color: #f44336;
+                color: white;
             }
         </style>
     </head>

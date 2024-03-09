@@ -1,8 +1,8 @@
-// These sites are blocked upon initialization
+// initial list of blocked sites for when the extension is loaded for the first time
 const SITES_TO_BLOCK = ["espn.com", "cnn.com"];
 
 chrome.runtime.onInstalled.addListener(() => {
-  // Initialize an empty list of blocked sites in storage if it doesn't exist
+  // initialize an empty list of blocked sites in storage if it doesn't exist
   chrome.storage.sync.get(["blockedSites"], function (result) {
     if (!result.blockedSites) {
       chrome.storage.sync.set({ blockedSites: SITES_TO_BLOCK });
@@ -21,18 +21,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ sites: result.blockedSites || [] });
     });
   }
-  return true; // Indicate that we will answer asynchronously
+  return true; // indicate that we will answer asynchronously
 });
 
-function addSite(site, sendResponse) {
+// helper function for managing storage
+function updateStorageSites(updateCallback) {
   chrome.storage.sync.get(["blockedSites"], function (result) {
     const sites = result.blockedSites || [];
+    updateCallback(sites, function (updatedSites) {
+      chrome.storage.sync.set({ blockedSites: updatedSites }, updateRules);
+    });
+  });
+}
+
+function addSite(site, sendResponse) {
+  updateStorageSites((sites, updateDone) => {
     if (!sites.includes(site)) {
       sites.push(site);
-      chrome.storage.sync.set({ blockedSites: sites }, () => {
-        updateRules();
-        sendResponse({ success: true });
-      });
+      updateDone(sites);
+      sendResponse({ success: true });
     } else {
       sendResponse({ success: false, error: "Site already blocked" });
       console.log("Site already blocked: " + site);
@@ -41,15 +48,12 @@ function addSite(site, sendResponse) {
 }
 
 function removeSite(site, sendResponse) {
-  chrome.storage.sync.get(["blockedSites"], function (result) {
-    const sites = result.blockedSites || [];
+  updateStorageSites((sites, updateDone) => {
     const index = sites.indexOf(site);
     if (index > -1) {
       sites.splice(index, 1);
-      chrome.storage.sync.set({ blockedSites: sites }, () => {
-        updateRules();
-        sendResponse({ success: true });
-      });
+      updateDone(sites);
+      sendResponse({ success: true });
     } else {
       sendResponse({ success: false, error: "Site not found" });
       console.log("Site not found: " + site);
@@ -59,25 +63,21 @@ function removeSite(site, sendResponse) {
 
 function updateRules() {
   chrome.storage.sync.get(["blockedSites"], async function (result) {
-    // First, get all all existing rules
-    const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
-    const oldRuleIds = oldRules.map((rule) => rule.id);
-
-    // Then, prepare the new rules based on the updated list of blocked sites
     const sites = result.blockedSites || [];
-
+    // prepare the new rules based on the updated list of blocked sites
     const newRules = sites.map((site, index) => ({
       id: index + 1,
       priority: 1,
       action: { type: "block" },
-      condition: {
-        urlFilter: site,
-        resourceTypes: ["main_frame"],
-      },
+      condition: { urlFilter: site, resourceTypes: ["main_frame"] },
     }));
 
-    // Finally, update the dynamic rules with the new set
-    await chrome.declarativeNetRequest.updateDynamicRules({
+    // then get all all existing rules
+    const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
+    const oldRuleIds = oldRules.map((rule) => rule.id);
+
+    // update the dynamic rules with the new set
+    chrome.declarativeNetRequest.updateDynamicRules({
       removeRuleIds: oldRuleIds,
       addRules: newRules,
     });

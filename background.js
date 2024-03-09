@@ -46,24 +46,14 @@ function removeSite(site, sendResponse) {
     const index = sites.indexOf(site);
     if (index > -1) {
       sites.splice(index, 1);
-      console.log(sites);
       chrome.storage.sync.set({ blockedSites: sites }, () => {
         updateRules();
         sendResponse({ success: true });
       });
-
-      // todo: adding multiple sites is breaking
     } else {
       sendResponse({ success: false, error: "Site not found" });
       console.log("Site not found: " + site);
     }
-  });
-
-  // log changes after
-  chrome.storage.sync.get(["blockedSites"], function (result) {
-    const newSites = result.blockedSites || [];
-    console.log("New sites... after removal");
-    console.log(newSites);
   });
 }
 
@@ -75,8 +65,6 @@ function updateRules() {
 
     // Then, prepare the new rules based on the updated list of blocked sites
     const sites = result.blockedSites || [];
-    console.log("Updating rules...");
-    console.log("Current sites:", sites);
 
     const newRules = sites.map((site, index) => ({
       id: index + 1,
@@ -84,12 +72,9 @@ function updateRules() {
       action: { type: "block" },
       condition: {
         urlFilter: site,
-        // urlFilter: `|https://*.${site}*`,
         resourceTypes: ["main_frame"],
       },
     }));
-
-    console.log("New rules:", newRules);
 
     // Finally, update the dynamic rules with the new set
     await chrome.declarativeNetRequest.updateDynamicRules({

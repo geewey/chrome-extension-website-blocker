@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("addSite").addEventListener("click", function () {
     const site = document.getElementById("newSite").value.trim().toLowerCase(); // Enforce casing
     if (site) {
-      console.log(site);
       addBlockRule(site);
     }
   });
@@ -28,7 +27,7 @@ function addBlockRule(site) {
       if (response.success) {
         addSiteToList(site);
       } else {
-        // Handle error (optional)
+        // Handle error
         alert("Site already blocked: " + site);
       }
       document.getElementById("newSite").value = ""; // Clear input field
@@ -43,7 +42,7 @@ function removeBlockRule(site) {
       if (response.success) {
         loadBlockedSites(); // Refresh the list
       } else {
-        // Handle error (optional)
+        // Handle error
         alert("Error occurred while removing site: " + site);
       }
     },

@@ -4,11 +4,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("addSite").addEventListener("click", function () {
     const site = document.getElementById("newSite").value.trim().toLowerCase(); // Enforce casing
-    if (site) {
+    if (site && isValidUrlFormat(site)) {
       addBlockRule(site);
+    } else if (!isValidUrlFormat(site)) {
+      alert(
+        "Input only the domain and top-level domain, ex: abc.com, xyz.shop, or funk.net",
+      );
     }
+    document.getElementById("newSite").value = ""; // Clear input field
   });
 });
+
+function isValidUrlFormat(site) {
+  // this pattern matches simple domain names like abc.com, xyz.shop, funk.net
+  // it checks for a string that consists of:
+  // 1. Optionally, one or more characters that are alphanumeric or dashes (for subdomains), followed by a dot.
+  // 2. One or more characters that are alphanumeric or dashes (for the domain name), followed by a dot.
+  // 3. Two to (a practical limit of) 10 characters for the TLD, to cover newer TLDs, allowing only letters.
+  const urlPattern = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,10}$/;
+
+  return urlPattern.test(site);
+}
 
 function loadBlockedSites() {
   chrome.runtime.sendMessage({ action: "getSites" }, function (response) {
@@ -30,7 +46,6 @@ function addBlockRule(site) {
         // Handle error
         alert("Site already blocked: " + site);
       }
-      document.getElementById("newSite").value = ""; // Clear input field
     },
   );
 }

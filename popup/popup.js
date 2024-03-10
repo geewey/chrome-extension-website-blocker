@@ -21,17 +21,17 @@ function isValidUrlFormat(site) {
   // 1. Optionally, one or more characters that are alphanumeric or dashes (for subdomains), followed by a dot.
   // 2. One or more characters that are alphanumeric or dashes (for the domain name), followed by a dot.
   // 3. Two to (a practical limit of) 10 characters for the TLD, to cover newer TLDs, allowing only letters.
-  const urlPattern = /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,10}$/;
+  const urlPattern = /^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,10}$/;
 
   return urlPattern.test(site);
 }
 
 function loadBlockedSites() {
   chrome.runtime.sendMessage({ action: "getSites" }, function (response) {
-    const siteList = document.getElementById("siteList");
-    siteList.innerHTML = ""; // Clear existing list
+    const blockedSitesList = document.getElementById("blockedSitesList");
+    blockedSitesList.innerHTML = ""; // Clear existing list
     response.sites.forEach((site) => {
-      addSiteToList(site);
+      displayBlockedSitesList(site);
     });
   });
 }
@@ -41,7 +41,7 @@ function addBlockRule(site) {
     { action: "add", site: site },
     function (response) {
       if (response.success) {
-        addSiteToList(site);
+        displayBlockedSitesList(site);
       } else {
         // Handle error
         alert("Site already blocked: " + site);
@@ -64,8 +64,8 @@ function removeBlockRule(site) {
   );
 }
 
-function addSiteToList(site) {
-  const list = document.getElementById("siteList");
+function displayBlockedSitesList(site) {
+  const list = document.getElementById("blockedSitesList");
   const entry = document.createElement("li");
   entry.textContent = site;
 

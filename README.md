@@ -1,4 +1,4 @@
-# chrome-extension-website-blocker
+# What is the "Chrome Extension Website Blocker"
 
 This Chrome extension blocks a list of user-specified domains and subdomains. The motivation was to experiment with Chrome Manifest V3 while creating a tool that helps me focus on learning and building new technology (win-win).
 

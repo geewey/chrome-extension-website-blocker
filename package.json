@@ -1,5 +1,5 @@
 {
-  "name": "puppeteer-demo",
+  "name": "chrome-extension-website-blocker",
   "version": "1.0",
   "dependencies": {
     "jest": "^29.7.0",
